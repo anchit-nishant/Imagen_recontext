@@ -4,6 +4,7 @@ This Streamlit application provides a simple and effective user interface for Go
 
 The app allows you to take an image of a person or product and generate a new image placing them in a completely different scene, as described by your text prompt.
 
+**Repository:** [https://github.com/anchit-nishant/Imagen_recontext](https://github.com/anchit-nishant/Imagen_recontext)
 
 *(Image: Example of the app's interface)*
 
@@ -12,17 +13,26 @@ The app allows you to take an image of a person or product and generate a new im
 
 Follow these steps to get the application running.
 
-1.  **Create Project Files:**
-    Create a new folder for your project and add the following two files inside it:
+1.  **Clone the Repository:**
+    ```bash
+    git clone https://github.com/anchit-nishant/Imagen_recontext.git
+    cd Imagen_recontext
+    ```
 
-    *   `requirements.txt`
-    *   `app.py`
-
-2.  **Add File Content:**
-    Copy the content from the sections below into their corresponding files.
+2.  **Create and Activate Virtual Environment:**
+    ```bash
+    # Create virtual environment
+    python -m venv venv
+    
+    # Activate virtual environment
+    # On Windows:
+    venv\Scripts\activate
+    # On macOS/Linux:
+    source venv/bin/activate
+    ```
 
 3.  **Install Dependencies:**
-    Open a terminal in your project folder and run:
+    With the virtual environment activated, install the required packages:
     ```bash
     pip install -r requirements.txt
     ```
@@ -40,6 +50,12 @@ Follow these steps to get the application running.
     streamlit run app.py
     ```
     Your browser will open with the running application.
+
+6.  **Deactivate Virtual Environment (when done):**
+    When you're finished working on the project, you can deactivate the virtual environment:
+    ```bash
+    deactivate
+    ```
 
 ## How to Use
 
