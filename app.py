@@ -58,14 +58,24 @@ st.header("2. Provide Your Inputs")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Source Image")
-    uploaded_product_image = st.file_uploader(
-        "Upload the image of your subject (person or product).",
-        type=['png', 'jpg', 'jpeg', 'webp']
+    st.subheader("Source Image(s)")
+    uploaded_product_images = st.file_uploader(
+        "Upload 1 to 3 images of your subject (person or product).",
+        type=['png', 'jpg', 'jpeg', 'webp'],
+        accept_multiple_files=True
     )
-    if uploaded_product_image:
-        # --- THIS IS THE FIX ---
-        st.image(uploaded_product_image, caption="Your source subject.", use_container_width=True)
+    
+    # --- The st.warning note has been removed from here ---
+
+    if uploaded_product_images:
+        if len(uploaded_product_images) > 3:
+            st.error("Please upload a maximum of 3 images.")
+            uploaded_product_images = uploaded_product_images[:3]
+        
+        cols = st.columns(len(uploaded_product_images))
+        for i, uploaded_image in enumerate(uploaded_product_images):
+            with cols[i]:
+                st.image(uploaded_image, caption=f"Source {i+1}", use_container_width=True)
 
 with col2:
     st.subheader("Descriptions")
@@ -102,9 +112,10 @@ with st.expander("⚙️ Generation Parameters", expanded=True):
 st.divider()
 
 if st.button("Generate Image ✨", type="primary", use_container_width=True):
-    # --- Input Validation ---
-    if not all([project_id, region, uploaded_product_image, subject_description, prompt]):
-        st.error("❌ Please fill in all fields: Project ID, Region, Subject Description, Prompt, and upload an image.")
+    if not all([project_id, region, uploaded_product_images, subject_description, prompt]):
+        st.error("❌ Please fill in all fields: Project ID, Region, Subject Description, Prompt, and upload at least one image.")
+    elif len(uploaded_product_images) > 3:
+        st.error("Please upload a maximum of 3 images.")
     else:
         with st.spinner("Recontextualizing your image... This can take a moment."):
             try:
@@ -112,11 +123,14 @@ if st.button("Generate Image ✨", type="primary", use_container_width=True):
                 access_token = get_gcp_token()
                 endpoint_url = f"https://{region}-aiplatform.googleapis.com/v1/projects/{project_id}/locations/{region}/publishers/google/models/imagen-product-recontext-preview-06-30:predict"
                 
-                encoded_image = encode_image(uploaded_product_image)
-                
+                product_images_payload = []
+                for uploaded_file in uploaded_product_images:
+                    encoded_string = encode_image(uploaded_file)
+                    product_images_payload.append({"image": {"bytesBase64Encoded": encoded_string}})
+
                 instance_data = {
                     "prompt": prompt,
-                    "productImages": [{"image": {"bytesBase64Encoded": encoded_image}}],
+                    "productImages": product_images_payload,
                     "productDescription": subject_description
                 }
                 
@@ -148,7 +162,6 @@ if st.button("Generate Image ✨", type="primary", use_container_width=True):
                             b64_image = prediction.get("bytesBase64Encoded")
                             if b64_image:
                                 img_bytes = base64.b64decode(b64_image)
-                                # --- THIS IS THE FIX ---
                                 st.image(img_bytes, caption=f"Result {i+1}", use_container_width=True)
                 else:
                     st.error("API returned a success status but no predictions were found. This can happen with very restrictive prompts.")
